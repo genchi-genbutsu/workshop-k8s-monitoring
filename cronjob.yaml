@@ -1,0 +1,20 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: workshop
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: "Forbid"
+  failedJobsHistoryLimit: 20
+  startingDeadlineSeconds: 600 # 10 min 
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 600 # 10min
+      template:
+        spec:
+          containers:
+            - name: hello
+              image: bash
+              command: ["echo",  "Workshop 29/3/2019"]
+          restartPolicy: OnFailure

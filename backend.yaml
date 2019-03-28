@@ -1,0 +1,68 @@
+#This is the backend service
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: backend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      terminationGracePeriodSeconds: 60
+#      imagePullSecrets:
+#      - name: gitlab
+      containers:
+      - name: backend
+        imagePullPolicy: Always
+#        image: registry.gitlab.com/workshop-k8s/backend:1.0.0
+        image: naarani/workshop-backend:1.0.0
+        resources:
+          limits:
+            memory: 400Mi
+          requests:
+            cpu: 30m
+            memory: 200Mi
+        livenessProbe:
+          httpGet:
+            path: /monitor
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - name: config-volume
+            mountPath: /cfg
+        securityContext:
+          allowPrivilegeEscalation: false
+          #readOnlyRootFilesystem: true
+          runAsUser: 1000
+      volumes:
+        - name: config-volume
+            # Provide the name of the ConfigMap containing the files you want
+            # to add to the container
+          configMap:
+            name: cfg-backend
