@@ -1,0 +1,114 @@
+#
+# quale file di configurazione e' attivo per il cluster di default?
+#
+kubectl config view
+
+#
+# definisco la variabile per puntare alla configurazione
+#
+KUBECONFIG=~/.kube/config
+
+
+
+#
+# PROMETHEUS, Grafana, configurazioni e componenti
+#
+#
+#
+kubectl --kubeconfig wks1 create namespace monitoring
+kubectl --kubeconfig wks1 create -f promet/configmap.yaml
+kubectl --kubeconfig wks1 create -f promet/clusterrole.yaml
+kubectl --kubeconfig wks1 create -f promet/node-exporter.yaml
+kubectl --kubeconfig wks1 create -f promet/promet.yaml
+
+kubectl --kubeconfig wks1 create -f promet/grafanacfg.yaml
+kubectl --kubeconfig wks1 create -f promet/grafana.yaml
+
+kubectl --kubeconfig wks1 create -f promet/promgate.yaml
+
+# kubectl --kubeconfig wks1 get pods --namespace=monitoring
+# kubectl --kubeconfig wks1 port-forward grafana-75dc9b7674-ffgrh 3000:3000 --namespace=monitoring
+
+# kubectl --kubeconfig wks1 port-forward svc/grafana 3000:3000 --namespace=monitoring
+# kubectl --kubeconfig wks1 port-forward svc/prometheus 9090:9090 --namespace=monitoring
+
+
+# --------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------
+
+
+
+#SE IL REGISTRO E' UN'ALTRO ED HA L'AUTENTICAZIONE
+#kubectl --kubeconfig wks1 create secret docker-registry gitlab --docker-server=registry.gitlab.com --docker-username=..... --docker-password=....
+
+
+kubectl --kubeconfig wks1 create configmap cfg-backend --from-file=cfg/cfg-backend.txt
+kubectl --kubeconfig wks1 create configmap cfg-frontend --from-file=cfg/cfg-frontend.txt
+
+
+#
+#IN CASO SIA NECESSARIO MODIFICARE LA CONFIGURAZIONE
+#kubectl --kubeconfig wks1 edit configmap cfg-frontend
+#
+
+
+#
+#
+#
+kubectl --kubeconfig wks1 apply -f backend.yaml
+kubectl --kubeconfig wks1 apply -f frontend.yaml
+
+
+
+#
+#IN CASO SIA NECESSARIO ELIMINARE IL POD -> il deployment che ha generato il POD ne forzera la ricreazione
+#kubectl --kubeconfig wks1 delete pod frontend-xxxxx
+#
+
+
+#
+# elenco dei POD
+#
+kubectl --kubeconfig wks1 get pods
+#
+# chiedo l'elenco eventi del POD e la descrizione complessiva del POD
+#
+#kubectl --kubeconfig wks1 describe pod backend-xxxxxxx
+
+
+
+#
+# chiedo il LOG del POD
+#
+#kubectl --kubeconfig wks1 log backend-xxxxxxx
+
+
+
+#
+# eseguo un port forward per i POD, prendo il nome dall'elenco dei POD attivi
+#
+#kubectl --kubeconfig wks1 port-forward backend-xxxxxx 8080:8090
+#kubectl --kubeconfig wks1 port-forward frontend-xxxxxx 8080:8080
+
+
+#
+# eseguo un port forward al servizio dei POD, prendo il nome dal servizio nel file yaml
+#
+#kubectl --kubeconfig wks1 port-forward svc/frontend 8080:8080
+#kubectl --kubeconfig wks1 port-forward svc/backend 8080:8080
+
+
+
+
+#
+# CRON JOB
+#
+kubectl --kubeconfig wks1 create -f cronjob.yaml
+kubectl --kubeconfig wks1 get cronjob -f workshopcron
+kubectl --kubeconfig wks1 get job --watch
+kubectl --kubeconfig wks1 get job
+kubectl --kubeconfig wks1 describe job workshop
+kubectl --kubeconfig wks1 describe cronjob workshop
+kubectl --kubeconfig wks1 delete cronjob workshopcron
+
