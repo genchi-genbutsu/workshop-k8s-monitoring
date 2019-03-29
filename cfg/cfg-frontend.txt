@@ -1,0 +1,3 @@
+urlmetrica=pushgateway-service.monitoring:9091
+prefisso_metrica=frt_
+urlbackend=http://backend:8080
