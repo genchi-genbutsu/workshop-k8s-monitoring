@@ -1,0 +1,2 @@
+urlmetrica=pushgateway-service.monitoring:9091
+prefisso_metrica=bck_
